@@ -1,16 +1,6 @@
 <template>
   <form @submit.prevent="handleSubmit">
     <fieldset>
-      <legend>Direction</legend>
-      <div v-for="option in directions" :key="option">
-        <label>
-          <input v-model="direction" :value="option" type="radio" />
-          {{ capitalize(option) }}
-        </label>
-      </div>
-    </fieldset>
-
-    <fieldset>
       <legend>Vehicle Type</legend>
       <div>
         <div v-for="option in vehicleTypes" :key="option">
@@ -22,31 +12,30 @@
       </div>
     </fieldset>
 
+    <fieldset>
+      <legend>Direction</legend>
+      <div v-for="option in directions" :key="option">
+        <label>
+          <input v-model="direction" :value="option" type="radio" />
+          {{ capitalize(option) }}
+        </label>
+      </div>
+    </fieldset>
+
     <button type="submit">Add</button>
   </form>
 
   <table>
     <thead>
       <tr>
-        <th>Direction</th>
         <th>Vehicle Type</th>
+        <th>Direction</th>
         <th>Timestamp</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="entry in entries" :key="entry.id" :class="{ 'removed-row': entry.removed }">
-        <td>
-          <select
-            v-model="entry.direction"
-            :disabled="entry.removed"
-            @change="updateEntry(entry.id, 'direction', $event.target)"
-          >
-            <option v-for="option in directions" :key="option" :value="option">
-              {{ capitalize(option) }}
-            </option>
-          </select>
-        </td>
         <td>
           <select
             v-model="entry.vehicleType"
@@ -58,7 +47,21 @@
             </option>
           </select>
         </td>
+
+        <td>
+          <select
+            v-model="entry.direction"
+            :disabled="entry.removed"
+            @change="updateEntry(entry.id, 'direction', $event.target)"
+          >
+            <option v-for="option in directions" :key="option" :value="option">
+              {{ capitalize(option) }}
+            </option>
+          </select>
+        </td>
+
         <td>{{ entry.timestamp }}</td>
+
         <td>
           <button :disabled="entry.removed" @click="deleteEntry(entry.id)">Delete</button>
         </td>
@@ -67,15 +70,13 @@
   </table>
 
   <h2>Raw data</h2>
-  <code>
-    <pre>{{
+  <pre><code>{{
       JSON.stringify(
         entries.filter((entry) => !entry.removed),
         undefined,
-        2,
+        2
       )
-    }}</pre>
-  </code>
+    }}</code></pre>
 </template>
 
 <script lang="ts" setup>
