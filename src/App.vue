@@ -1,0 +1,148 @@
+<template>
+  <form @submit.prevent="handleSubmit">
+    <fieldset>
+      <legend>Direction</legend>
+      <div v-for="option in directions" :key="option">
+        <label>
+          <input v-model="direction" :value="option" type="radio" />
+          {{ capitalize(option) }}
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vehicle Type</legend>
+      <div>
+        <div v-for="option in vehicleTypes" :key="option">
+          <label>
+            <input v-model="vehicleType" :value="option" type="radio" />
+            {{ capitalize(option) }}
+          </label>
+        </div>
+      </div>
+    </fieldset>
+
+    <button type="submit">Add</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Direction</th>
+        <th>Vehicle Type</th>
+        <th>Timestamp</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="entry in entries" :key="entry.id" :class="{ 'removed-row': entry.removed }">
+        <td>
+          <select
+            v-model="entry.direction"
+            :disabled="entry.removed"
+            @change="updateEntry(entry.id, 'direction', $event.target.value)"
+          >
+            <option v-for="option in directions" :key="option" :value="option">
+              {{ capitalize(option) }}
+            </option>
+          </select>
+        </td>
+        <td>
+          <select
+            v-model="entry.vehicleType"
+            :disabled="entry.removed"
+            @change="updateEntry(entry.id, 'vehicleType', $event.target.value)"
+          >
+            <option v-for="option in vehicleTypes" :key="option" :value="option">
+              {{ capitalize(option) }}
+            </option>
+          </select>
+        </td>
+        <td>{{ entry.timestamp }}</td>
+        <td>
+          <button :disabled="entry.removed" @click="deleteEntry(entry.id)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Raw data</h2>
+  <code>
+    <pre>{{
+      JSON.stringify(
+        entries.filter((entry) => !entry.disabled),
+        undefined,
+        2,
+      )
+    }}</pre>
+  </code>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue'
+
+const directions = ['left', 'right', 'straight']
+const vehicleTypes = ['car', 'bus', 'cyclist', 'pedestrian']
+
+type Entry = {
+  id: string
+  direction: (typeof directions)[number]
+  vehicleType: (typeof vehicleTypes)[number]
+  timestamp: string
+}
+
+const direction = ref('')
+const vehicleType = ref('')
+
+const entries = ref<Entry[]>([])
+
+const loadEntries = () => {
+  const storedEntries = localStorage.getItem('trafficEntries')
+  if (storedEntries) {
+    entries.value = JSON.parse(storedEntries)
+  }
+}
+
+const saveEntries = (newEntries: Entry[]) => {
+  entries.value = newEntries
+  localStorage.setItem('trafficEntries', JSON.stringify(newEntries))
+}
+
+const handleSubmit = () => {
+  if (direction.value && vehicleType.value) {
+    const newEntry = {
+      id: Date.now().toString(),
+      direction: direction.value,
+      vehicleType: vehicleType.value,
+      timestamp: new Date().toLocaleString(),
+    }
+    saveEntries([newEntry, ...entries.value])
+    direction.value = ''
+    vehicleType.value = ''
+  }
+}
+
+const updateEntry = (id: string, field: keyof Entry, value: string) => {
+  const updatedEntries = entries.value.map((entry) =>
+    entry.id === id ? { ...entry, [field]: value } : entry,
+  )
+  saveEntries(updatedEntries)
+}
+
+const deleteEntry = (id: string) => {
+  const updatedEntries = entries.value.map((entry) =>
+    entry.id === id ? { ...entry, removed: true } : entry,
+  )
+  saveEntries(updatedEntries)
+}
+
+const capitalize = (string: string) => string.charAt(0).toUpperCase() + string.slice(1)
+
+onMounted(loadEntries)
+</script>
+
+<style scoped>
+.removed-row {
+  text-decoration: line-through;
+}
+</style>
