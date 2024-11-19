@@ -69,7 +69,10 @@
     </tbody>
   </table>
 
-  <h2>Raw data</h2>
+  <h2>Data as CSV</h2>
+  <pre><code>{{ textCSV }}</code></pre>
+
+  <h2>Data as JSON</h2>
   <pre><code>{{
       JSON.stringify(
         entries.filter((entry) => !entry.removed),
@@ -82,7 +85,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const directions = ['left', 'right', 'straight']
 const vehicleTypes = ['car', 'bus', 'cyclist', 'pedestrian']
@@ -152,6 +155,25 @@ const deleteAllEntries = () => {
 }
 
 const capitalize = (string: string) => string.charAt(0).toUpperCase() + string.slice(1)
+
+const textCSV = computed(() => {
+  const headers: (keyof Entry)[] = ['id', 'direction', 'vehicleType', 'timestamp']
+
+  // Map each entry to a CSV row
+  const rows = entries.value
+    .filter((entry) => !entry.removed)
+    .map((entry) =>
+      headers
+        .map((header) => {
+          // Use double quotes to escape comma's
+          return `"${entry[header]}"`
+        })
+        .join(','),
+    )
+
+  // Combine the headers and rows into a CSV string
+  return [headers.join(','), ...rows].join('\n')
+})
 
 onMounted(loadEntries)
 </script>
