@@ -77,6 +77,8 @@
         2
       )
     }}</code></pre>
+
+  <button @click="deleteAllEntries">Reset</button>
 </template>
 
 <script lang="ts" setup>
@@ -141,6 +143,12 @@ const deleteEntry = (id: string) => {
     entry.id === id ? { ...entry, removed: true } : entry,
   )
   saveEntries(updatedEntries)
+}
+
+const deleteAllEntries = () => {
+  if (window.confirm('Do you really want to DELETE ALL DATA?')) {
+    saveEntries([])
+  }
 }
 
 const capitalize = (string: string) => string.charAt(0).toUpperCase() + string.slice(1)
