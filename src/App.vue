@@ -40,7 +40,7 @@
           <select
             v-model="entry.direction"
             :disabled="entry.removed"
-            @change="updateEntry(entry.id, 'direction', $event.target.value)"
+            @change="updateEntry(entry.id, 'direction', $event.target)"
           >
             <option v-for="option in directions" :key="option" :value="option">
               {{ capitalize(option) }}
@@ -51,7 +51,7 @@
           <select
             v-model="entry.vehicleType"
             :disabled="entry.removed"
-            @change="updateEntry(entry.id, 'vehicleType', $event.target.value)"
+            @change="updateEntry(entry.id, 'vehicleType', $event.target)"
           >
             <option v-for="option in vehicleTypes" :key="option" :value="option">
               {{ capitalize(option) }}
@@ -70,7 +70,7 @@
   <code>
     <pre>{{
       JSON.stringify(
-        entries.filter((entry) => !entry.disabled),
+        entries.filter((entry) => !entry.removed),
         undefined,
         2,
       )
@@ -89,6 +89,7 @@ type Entry = {
   direction: (typeof directions)[number]
   vehicleType: (typeof vehicleTypes)[number]
   timestamp: string
+  removed?: boolean
 }
 
 const direction = ref('')
@@ -122,7 +123,12 @@ const handleSubmit = () => {
   }
 }
 
-const updateEntry = (id: string, field: keyof Entry, value: string) => {
+const updateEntry = (id: string, field: keyof Entry, eventTarget: EventTarget | null) => {
+  if (!eventTarget) {
+    return
+  }
+  const value = (<HTMLInputElement>eventTarget).value
+
   const updatedEntries = entries.value.map((entry) =>
     entry.id === id ? { ...entry, [field]: value } : entry,
   )
