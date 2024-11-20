@@ -182,4 +182,8 @@ onMounted(loadEntries)
 .removed-row {
   text-decoration: line-through;
 }
+
+label {
+  font-size: 2rem;
+}
 </style>
