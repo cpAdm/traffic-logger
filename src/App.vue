@@ -124,7 +124,7 @@ const handleSubmit = () => {
       timestamp: new Date().toLocaleString(),
     }
     saveEntries([newEntry, ...entries.value])
-    direction.value = 'right'
+    direction.value = 'straight'
     vehicleType.value = 'car'
   }
 }
