@@ -25,6 +25,8 @@
     <button type="submit">Add</button>
   </form>
 
+  <button style="margin-top:1rem" @click="downloadCSV">Download CSV</button>
+
   <table>
     <thead>
       <tr>
@@ -174,6 +176,17 @@ const textCSV = computed(() => {
   // Combine the headers and rows into a CSV string
   return [headers.join(','), ...rows].join('\n')
 })
+
+const downloadCSV = () => {
+  const blob = new Blob([textCSV.value], { type: 'text/csv' });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = "traffic-log";
+  link.click();
+
+  URL.revokeObjectURL(link.href);
+}
 
 onMounted(loadEntries)
 </script>
