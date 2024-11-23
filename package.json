@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "prebuild": "npm run type-check",
+    "build": "vite build",
     "preview": "vite preview",
-    "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
@@ -24,7 +24,6 @@
     "@vue/tsconfig": "^0.5.1",
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
-    "npm-run-all2": "^7.0.1",
     "prettier": "^3.3.3",
     "typescript": "~5.6.3",
     "vite": "^5.4.10",
